@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名字產生器 - 隨機名字生成器</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100&display=swap">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            position: absolute;
+            bottom: 100%;
+            left: 10%;
+            background-color: #fff;
+            box-shadow: 0 0 1px 0 rgba(24, 94, 224, 0.15), 0 6px 12px 0 rgba(24, 94, 224, 0.15);
+            padding: 0.75rem;
+            border-radius: 99px;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+
+        .tabs * {
+            z-index: 2;
+        }
+
+        .container {
+            text-align: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px;
+            width: 100px;
+            font-size: 0.8rem;
+            color: black;
+            font-weight: 500;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: color 0.15s ease-in;
+            position: relative;
+        }
+
+        .container input[type="radio"] {
+            display: none;
+        }
+
+        .container input[type="radio"]:checked + label {
+            color: #185ee0;
+        }
+
+        .container input[id="radio-1"]:checked ~ .glider {
+            transform: translateX(-35pt);
+        }
+
+        .container input[id="radio-2"]:checked ~ .glider {
+            transform: translateX(35pt);
+        }
+
+        .glider {
+            position: absolute;
+            display: flex;
+            height: 30px;
+            width: 100px;
+            background-color: #e6eef9;
+            z-index: 1;
+            border-radius: 99px;
+            transition: 0.25s ease-out;
+        }
+
+        .names {
+            font-size: 18px;
+            white-space: pre-line;
+            margin-top: 20px;
+        }
+
+        .input {
+            border: none;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: #e8e8e8;
+            box-shadow: 20px 20px 60px #c5c5c5, -20px -20px 60px #ffffff;
+            transition: 0.3s;
+            margin-bottom: 20px;
+            font-size: 16px;
+            outline: none;
+            width: 80%;
+            max-width: 300px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input:focus {
+            outline-color: #e8e8e8;
+            background: #e8e8e8;
+            box-shadow: inset 20px 20px 60px #c5c5c5, inset -20px -20px 60px #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn {
+            text-transform: uppercase;
+            text-decoration: none;
+            color: rgb(27, 27, 27);
+            padding: 10px 30px;
+            border: 1px solid;
+            border-radius: 1000px;
+            display: inline-block;
+            transition: all 0.2s;
+            position: relative;
+            font-family: 'Noto Sans TC', sans-serif;
+            margin-top: 10px;
+            z-index: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(27, 27, 27, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-3px);
+        }
+
+        .btn::after {
+            content: "";
+            display: inline-block;
+            height: 100%;
+            width: 100%;
+            border-radius: 100px;
+            top: 0;
+            left: 0;
+            position: absolute;
+            z-index: -1;
+            transition: all 0.3s;
+        }
+
+        .btn:hover::after {
+            background-color: rgb(0, 238, 255);
+            transform: scaleX(1.4) scaleY(1.5);
+            opacity: 0;
+        }
+
+        @media (max-width: 700px) {
+            .tabs {
+                transform: scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <input type="radio" id="radio-1" name="gender" checked>
+            <label for="radio-1" class="tab">女生名字</label>
+            <input type="radio" id="radio-2" name="gender">
+            <label for="radio-2" class="tab">男生名字</label>
+            <div class="glider"></div>
+        </div>
+
+        <div class="input">
+            <input type="number" id="name-count" placeholder="請輸入生成數量">
+            <button class="btn" onclick="generateNames()">生成名字</button>
+        </div>
+
+        <div id="female-names" class="names"></div>
+        <div id="male-names" class="names" style="display: none;"></div>
+    </div>
+
+    <script>
+        const femaleWords = ["紫","子","梓","芷","芃","聿","育","郁","鈺","文",
+                             "妏","玟","雯","芸","筠","紜","妘","心","歆","忻",
+                             "昕","妡","昀","妤","聆","姈","希","晞","曦","晰",
+                             "忛","凡","帆","怡","儀","頤","誼","悅","詩","思",
+                             "恩","穎","尹","瞳","婷","渟","庭","璇","映","盈",
+                             "晴","曉","筱","萱","軒","瑄","暄","諼","媛","緣",
+                             "苑","瑗","爰","曖","嬡","采","潔","絜","睫","婕",
+                             "韶","竺","筑","芝","之","芊","芍","羽","語","予",
+                             "伃","雪","虹","琪","琦","錡","祈","柔","媃","韻",
+                             "蘊","韵","音","茵","安","葳","唯","薇","若","湘",
+                             "珊","姍","倩","蒨","茜","涵","嫣","嘉","加","佳",
+                             "家","舒","書","品","雅","芳","方","君","郡","珺",
+                             "菌","茹","嬬","皓","嵐","蘭","乃","景","瑾","槿",
+                             "曄","棠","英","瑛","纓","櫻","晨","岑","閔","敏",
+                             "臻","真","媜","珍","蓁","楨","喬","惠","慧","蓉",
+                             "容","沛","佩","珮","姵","霈","羿","孟","菡","葦",
+                             "淨","靜","婧","瀞","佑","宥","姿","芮","沐","詠",
+                             "信","菁","寧","凝","甯","倪","霓"];
+
+        const maleWords = ["翔","祥","瀚","翰","漢","廷","霆","軒","偉","暐",
+                           "瑋","緯","加","嘉","辰","宸","晨","成","程","承",
+                           "誠","澄","晟","丞","勳","勛","謙","騫","冠","喆",
+                           "哲","靖","杰","傑","頡","捷","亦","毅","奕","翊",
+                           "俊","駿","竣","浚","畯","宇","羽","霖","佑","宥",
+                           "祐","侑","倫","侖","博","伯","柏","建","亨","裕",
+                           "育","昱","煜","榮","融","茂","曄","華","驊","豪",
+                           "安","恩","彥","晏","澤","則","睿","瑞","叡","威",
+                           "崴","頎","其","棋","騏","祺","松","穎","淳","賀",
+                           "皓","浩","昊","凱","楷","豈","愷","鎧","秉","智",
+                           "志","誌","民","旻","儒","孺","基","斌","彬","章",
+                           "璋","立","銘","明","典","善","牧","宏","鴻","泓",
+                           "紘","閎","弘","維","唯","惟","韋"];
+
+        const femaleNamesContainer = document.getElementById('female-names');
+        const maleNamesContainer = document.getElementById('male-names');
+        const nameCountInput = document.getElementById('name-count');
+
+        const femaleTab = document.getElementById('radio-1');
+        const maleTab = document.getElementById('radio-2');
+
+        femaleTab.addEventListener('change', () => {
+            if (femaleTab.checked) {
+                femaleNamesContainer.style.display = 'block';
+                maleNamesContainer.style.display = 'none';
+            }
+        });
+
+        maleTab.addEventListener('change', () => {
+            if (maleTab.checked) {
+                femaleNamesContainer.style.display = 'none';
+                maleNamesContainer.style.display = 'block';
+            }
+        });
+
+        function generateNames() {
+            const count = parseInt(nameCountInput.value) || 20; // 預設生成數量為20
+            if (femaleTab.checked) {
+                generateFemaleNames(count);
+            } else {
+                generateMaleNames(count);
+            }
+        }
+
+        function generateFemaleNames(count) {
+            let names = '';
+            for (let i = 0; i < count; i++) {
+                const a = Math.floor(Math.random() * femaleWords.length);
+                const b = Math.floor(Math.random() * femaleWords.length);
+                names += femaleWords[a] + femaleWords[b] + ' ';
+                if ((i + 1) % 5 === 0) {
+                    names += '<br>';
+                }
+            }
+            femaleNamesContainer.innerHTML = '\n' + names;
+        }
+
+        function generateMaleNames(count) {
+            let names = '';
+            for (let i = 0; i < count; i++) {
+                const a = Math.floor(Math.random() * maleWords.length);
+                const b = Math.floor(Math.random() * maleWords.length);
+                names += maleWords[a] + maleWords[b] + ' ';
+                if ((i + 1) % 5 === 0) {
+                    names += '<br>';
+                }
+            }
+            maleNamesContainer.innerHTML = '\n' + names;
+        }
+    </script>
+</body>
+</html>
